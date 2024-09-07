@@ -25008,9 +25008,7 @@ async function run() {
         core.debug(`Diff: ${diff}`);
         const diffChunks = (0, parseDiff_1.parseDiff)(diff);
         core.debug(`Diff chunks: ${diffChunks}`);
-        const commentChunks = diffChunks
-            .map(chunk => (0, parseComments_1.parseComments)(chunk, regexpOptions))
-            .flat();
+        const commentChunks = diffChunks.flatMap(chunk => (0, parseComments_1.parseComments)(chunk, regexpOptions));
         core.debug(`Comment chunks: ${commentChunks}`);
         const tasks = (0, extractTasks_1.extractTasks)(regexp, commentChunks);
         core.setOutput('tasks', tasks);
@@ -25035,9 +25033,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.outputDiff = outputDiff;
-const child_process_1 = __nccwpck_require__(2081);
+const node_child_process_1 = __nccwpck_require__(7718);
 const node_util_1 = __importDefault(__nccwpck_require__(7261));
-const execAsync = node_util_1.default.promisify(child_process_1.exec);
+const execAsync = node_util_1.default.promisify(node_child_process_1.exec);
 async function outputDiff(path, commit) {
     await execAsync(`git fetch origin ${commit}`);
     const { stdout } = await execAsync(`git diff ${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`);
@@ -25253,14 +25251,6 @@ module.exports = require("buffer");
 
 /***/ }),
 
-/***/ 2081:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("child_process");
-
-/***/ }),
-
 /***/ 6206:
 /***/ ((module) => {
 
@@ -25330,6 +25320,14 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
+
+/***/ }),
+
+/***/ 7718:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:child_process");
 
 /***/ }),
 

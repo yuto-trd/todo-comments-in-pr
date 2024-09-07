@@ -15,7 +15,7 @@ name: Find TODOs in pull requests
 
 on:
   pull_request:
-  
+
 jobs:
   find-todos:
     permissions:
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: indigo-san/todo-comments-in-pr@v1
         id: todos
-        
+
       - name: Generate a summary of the tasks
         uses: actions/github-script@v7
         id: summary
@@ -56,8 +56,8 @@ jobs:
 
 ### `path`
 
-**Optional** The path to the file to search for TODOs.
-Need to specify a Json array.  
+**Optional** The path to the file to search for TODOs. Need to specify a Json
+array.  
 (default: `"['*.cs','*.js','*.jsx','*.ts','*.tsx','*.css','*.scss','*.sass']"`)
 
 ### `commit`
