@@ -10,7 +10,7 @@ branding:
 # Define your inputs here.
 inputs:
   path:
-    description: 'The path to the directory to search for files.'
+    description: 'The path to search for TODOs.'
     required: false
     default: "['*.cs','*.js','*.jsx','*.ts','*.tsx','*.css','*.scss','*.sass']"
   commit:
