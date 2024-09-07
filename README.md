@@ -63,7 +63,7 @@ array.
 ### `commit`
 
 **Optional** The commit to compare the current commit to.  
-(default: `origin/${{ github.event.pull_request.base.ref }}`)
+(default: `${{ github.event.pull_request.base.ref }}`)
 
 ### `single_line_comment`
 

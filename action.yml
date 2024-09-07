@@ -16,7 +16,7 @@ inputs:
   commit:
     description: 'The commit to compare the current commit to.'
     required: false
-    default: origin/${{ github.event.pull_request.base.ref }}
+    default: ${{ github.event.pull_request.base.ref }}
   single_line_comment:
     default: \/\/.*
     description: 'The regex pattern to match single-line comments.'

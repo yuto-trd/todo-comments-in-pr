@@ -25038,7 +25038,7 @@ const node_util_1 = __importDefault(__nccwpck_require__(7261));
 const execAsync = node_util_1.default.promisify(node_child_process_1.exec);
 async function outputDiff(path, commit) {
     await execAsync(`git fetch origin ${commit}`);
-    const { stdout } = await execAsync(`git diff ${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`);
+    const { stdout } = await execAsync(`git diff origin/${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`);
     return stdout;
 }
 
