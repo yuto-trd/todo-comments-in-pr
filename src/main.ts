@@ -1,5 +1,8 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
+import { outputDiff } from './outputDiff';
+import { parseDiff } from './parseDiff';
+import { parseComments } from './parseComments';
+import { extractTasks } from './extractTasks';
 
 /**
  * The main function for the action.
@@ -7,20 +10,35 @@ import { wait } from './wait'
  */
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const pathJson: string = core.getInput('path');
+    const path = JSON.parse(pathJson) as string[];
+    const commit: string = core.getInput('commit');
+    const singleLineComment = core.getInput('single_line_comment', { trimWhitespace: true });
+    const multiLineCommentStart = core.getInput('multi_line_comment_start', { trimWhitespace: true });
+    const multiLineCommentEnd = core.getInput('multi_line_comment_end', { trimWhitespace: true });
+    const regexpOptions = (singleLineComment && multiLineCommentStart && multiLineCommentEnd) ? {
+      singleLine: new RegExp(singleLineComment),
+      multiLine: {
+        start: new RegExp(multiLineCommentStart),
+        end: new RegExp(multiLineCommentEnd)
+      }
+    } : undefined;
+    const regexp = new RegExp(core.getInput('regex', { trimWhitespace: true }) ?? "TODO");
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const diff = await outputDiff(path, commit);
+    core.debug(`Diff: ${diff}`);
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const diffChunks = parseDiff(diff);
+    core.debug(`Diff chunks: ${diffChunks}`);
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    const commentChunks = diffChunks.map(chunk => parseComments(chunk, regexpOptions)).flat();
+    core.debug(`Comment chunks: ${commentChunks}`);
+
+    const tasks = extractTasks(regexp, commentChunks)
+
+    core.setOutput('tasks', tasks)
+    core.setOutput('tasks_count', tasks.length)
   } catch (error) {
-    // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
   }
 }

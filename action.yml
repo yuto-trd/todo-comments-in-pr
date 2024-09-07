@@ -1,23 +1,46 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Find TODOs in pull requests'
+description: 'A GitHub Action to find TODOs in pull requests.'
+author: 'indigo-san'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: 'check-circle'
+  color: 'yellow'
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  path:
+    description: 'The path to the directory to search for files.'
+    required: false
+    default: "['*.cs','*.js','*.jsx','*.ts','*.tsx','*.css','*.scss','*.sass']"
+  commit:
+    description: 'The commit to compare the current commit to.'
+    required: false
+    default: origin/${{ github.event.pull_request.base.ref }}
+  single_line_comment:
+    default: \/\/.*
+    description: 'The regex pattern to match single-line comments.'
+    required: false
+  multi_line_comment_start:
+    default: \/\*
+    description: 'The regex pattern to match the start of a multi-line comment.'
+    required: false
+  multi_line_comment_end:
+    default: \*\/
+    description: 'The regex pattern to match the end of a multi-line comment.'
+    required: false
+  regex:
+    # default: \b(?:TODO|FIXME|HACK|XXX|BUG|NOTE|IDEA|REVIEW|NB|QUESTION|COMBAK|TEMP)\b
+    default: TODO
+    description: 'The regex pattern to match the keywords.'
+    required: false
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  tasks:
+    description: ''
+  tasks_count:
+    description: ''
 
 runs:
   using: node20

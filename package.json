@@ -1,21 +1,22 @@
 {
-  "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "name": "todo-comments-in-pr",
+  "description": "Parse TODO comments in PRs",
+  "version": "1.0.0",
+  "author": "indigo-san",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/indigo-san/todo-comments-in-pr",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/indigo-san/todo-comments-in-pr.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/indigo-san/todo-comments-in-pr/issues"
   },
   "keywords": [
     "actions",
     "node",
-    "setup"
+    "todo",
+    "task"
   ],
   "exports": {
     ".": "./dist/index.js"
@@ -66,7 +67,8 @@
     ]
   },
   "dependencies": {
-    "@actions/core": "^1.10.1"
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
