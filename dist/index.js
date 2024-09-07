@@ -24920,6 +24920,27 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 9038:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.extractTasks = extractTasks;
+function extractTasks(regex, comments) {
+    return comments
+        .filter(comment => regex.test(comment.content))
+        .map(comment => ({
+        startLine: comment.startLine,
+        endLine: comment.endLine,
+        content: comment.content,
+        fileName: comment.fileName
+    }));
+}
+
+
+/***/ }),
+
 /***/ 399:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -24951,25 +24972,51 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = run;
 const core = __importStar(__nccwpck_require__(2186));
-const wait_1 = __nccwpck_require__(5259);
+const outputDiff_1 = __nccwpck_require__(6652);
+const parseDiff_1 = __nccwpck_require__(5669);
+const parseComments_1 = __nccwpck_require__(7125);
+const extractTasks_1 = __nccwpck_require__(9038);
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
     try {
-        const ms = core.getInput('milliseconds');
-        // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-        core.debug(`Waiting ${ms} milliseconds ...`);
-        // Log the current timestamp, wait, then log the new timestamp
-        core.debug(new Date().toTimeString());
-        await (0, wait_1.wait)(parseInt(ms, 10));
-        core.debug(new Date().toTimeString());
-        // Set outputs for other workflow steps to use
-        core.setOutput('time', new Date().toTimeString());
+        const pathJson = core.getInput('path');
+        const path = JSON.parse(pathJson);
+        const commit = core.getInput('commit');
+        const singleLineComment = core.getInput('single_line_comment', {
+            trimWhitespace: true
+        });
+        const multiLineCommentStart = core.getInput('multi_line_comment_start', {
+            trimWhitespace: true
+        });
+        const multiLineCommentEnd = core.getInput('multi_line_comment_end', {
+            trimWhitespace: true
+        });
+        const regexpOptions = singleLineComment && multiLineCommentStart && multiLineCommentEnd
+            ? {
+                singleLine: new RegExp(singleLineComment),
+                multiLine: {
+                    start: new RegExp(multiLineCommentStart),
+                    end: new RegExp(multiLineCommentEnd)
+                }
+            }
+            : undefined;
+        const regexp = new RegExp(core.getInput('regex', { trimWhitespace: true }) ?? 'TODO');
+        const diff = await (0, outputDiff_1.outputDiff)(path, commit);
+        core.debug(`Diff: ${diff}`);
+        const diffChunks = (0, parseDiff_1.parseDiff)(diff);
+        core.debug(`Diff chunks: ${diffChunks}`);
+        const commentChunks = diffChunks
+            .map(chunk => (0, parseComments_1.parseComments)(chunk, regexpOptions))
+            .flat();
+        core.debug(`Comment chunks: ${commentChunks}`);
+        const tasks = (0, extractTasks_1.extractTasks)(regexp, commentChunks);
+        core.setOutput('tasks', tasks);
+        core.setOutput('tasks_count', tasks.length);
     }
     catch (error) {
-        // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
     }
@@ -24978,25 +25025,205 @@ async function run() {
 
 /***/ }),
 
-/***/ 5259:
+/***/ 6652:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.outputDiff = outputDiff;
+const child_process_1 = __nccwpck_require__(2081);
+const node_util_1 = __importDefault(__nccwpck_require__(7261));
+const execAsync = node_util_1.default.promisify(child_process_1.exec);
+async function outputDiff(path, commit) {
+    await execAsync(`git fetch origin ${commit}`);
+    const { stdout } = await execAsync(`git diff ${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`);
+    return stdout;
+}
+
+
+/***/ }),
+
+/***/ 7125:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.wait = wait;
-/**
- * Wait for a number of milliseconds.
- * @param milliseconds The number of milliseconds to wait.
- * @returns {Promise<string>} Resolves with 'done!' after the wait is over.
- */
-async function wait(milliseconds) {
-    return new Promise(resolve => {
-        if (isNaN(milliseconds)) {
-            throw new Error('milliseconds not a number');
+exports.parseComments = parseComments;
+function parseComments(chunk, options) {
+    const singleLineCommentRegEx = options ? options.singleLine : /\/\/.*/g;
+    const multiLineCommentStartRegEx = options
+        ? options.multiLine?.start
+        : /\/\*/g;
+    const multiLineCommentEndRegEx = options ? options.multiLine?.end : /\*\//g;
+    if (options?.multiLine) {
+        if (!options?.multiLine?.start || !options?.multiLine?.end) {
+            throw new Error('multiLine.start and multiLine.end are required');
         }
-        setTimeout(() => resolve('done!'), milliseconds);
-    });
+    }
+    const comments = [];
+    let commentStartLine = 0;
+    let commentEndLine = 0;
+    let content = [];
+    let multiLineComment = false;
+    let singleLineComment = false;
+    function reset() {
+        commentStartLine = 0;
+        commentEndLine = 0;
+        content = [];
+        multiLineComment = false;
+        singleLineComment = false;
+    }
+    function pushComment() {
+        if (commentStartLine > commentEndLine ||
+            (commentStartLine === 0 && commentEndLine === 0))
+            return;
+        if (content.length === 0)
+            return;
+        comments.push({
+            startLine: commentStartLine,
+            endLine: commentEndLine,
+            content: content.join('\n'),
+            fileName: chunk.filename
+        });
+        reset();
+    }
+    for (const line of chunk.lines) {
+        const lineContent = line.content;
+        if (multiLineCommentStartRegEx?.test(lineContent)) {
+            if (singleLineComment) {
+                pushComment();
+            }
+            multiLineComment = true;
+            commentStartLine = line.line;
+        }
+        if (multiLineComment) {
+            content.push(lineContent);
+            commentEndLine = line.line;
+        }
+        if (multiLineCommentEndRegEx?.test(lineContent)) {
+            multiLineComment = false;
+            pushComment();
+            continue;
+        }
+        if (!multiLineComment) {
+            if (singleLineCommentRegEx?.test(lineContent)) {
+                content.push(lineContent);
+                if (singleLineComment) {
+                    commentEndLine = line.line;
+                }
+                else {
+                    commentStartLine = line.line;
+                    commentEndLine = line.line;
+                    singleLineComment = true;
+                }
+            }
+            else if (singleLineComment) {
+                pushComment();
+            }
+        }
+    }
+    pushComment();
+    return comments;
+}
+
+
+/***/ }),
+
+/***/ 5669:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.parseDiff = parseDiff;
+const core = __importStar(__nccwpck_require__(2186));
+function groupBy(array, keySelector) {
+    return array.reduce((obj, cur, idx, src) => {
+        const key = keySelector(cur, idx, src);
+        let arr = obj[key];
+        if (!arr) {
+            arr = [];
+            obj[key] = arr;
+        }
+        arr.push(cur);
+        return obj;
+    }, {});
+}
+function parseDiff(diff) {
+    let filename = '';
+    let startLine = 0;
+    const lines = [];
+    for (const line of diff.split('\n')) {
+        if (/^diff --git a\/.* b\/.*/.test(line)) {
+            filename = line
+                .substring(13)
+                .replace(/^a\//, '')
+                .replace(/ b\/.*/, '');
+        }
+        else if (line.startsWith('@@ ')) {
+            const arr = line.split(/[@, ]+/);
+            const lineNumString = arr.find(i => i.startsWith('+'))?.substring(1);
+            if (!lineNumString) {
+                core.warning(`Failed to parse line number from: ${line}`);
+            }
+            else {
+                startLine = Number.parseInt(lineNumString);
+            }
+        }
+        else if (line.startsWith('+') && !line.startsWith('+++')) {
+            lines.push({ filename, line: startLine, content: line.substring(1) });
+            startLine++;
+        }
+    }
+    const result = [];
+    const group = groupBy(lines, l => l.filename);
+    for (const [filename, lines] of Object.entries(group)) {
+        let currentLine = -1;
+        let currentChunk = [];
+        for (const line of lines ?? []) {
+            if (currentLine === -1 || currentLine + 1 === line.line) {
+                currentLine = line.line;
+                currentChunk.push({ line: line.line, content: line.content });
+            }
+            else {
+                currentLine = line.line;
+                result.push({ filename: line.filename, lines: currentChunk });
+                currentChunk = [{ line: line.line, content: line.content }];
+            }
+        }
+        if (currentChunk.length > 0) {
+            result.push({ filename: filename, lines: currentChunk });
+        }
+    }
+    return result;
 }
 
 
@@ -25023,6 +25250,14 @@ module.exports = require("async_hooks");
 
 "use strict";
 module.exports = require("buffer");
+
+/***/ }),
+
+/***/ 2081:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");
 
 /***/ }),
 

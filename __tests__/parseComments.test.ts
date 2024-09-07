@@ -1,5 +1,5 @@
-import { parseComments, CommentChunk } from "../src/parseComments";
-import { DiffChunk } from "../src/parseDiff";
+import { parseComments, CommentChunk } from '../src/parseComments';
+import { DiffChunk } from '../src/parseDiff';
 
 describe('parseComments', () => {
   it('should parse single line comments', () => {
@@ -8,7 +8,7 @@ describe('parseComments', () => {
       lines: [
         { line: 1, content: '// This is a single line comment' },
         { line: 2, content: 'const a = 1;' },
-        { line: 3, content: '// Another single line comment' },
+        { line: 3, content: '// Another single line comment' }
       ]
     };
 
@@ -36,7 +36,7 @@ describe('parseComments', () => {
       lines: [
         { line: 1, content: '/* This is a' },
         { line: 2, content: 'multi-line comment */' },
-        { line: 3, content: 'const a = 1;' },
+        { line: 3, content: 'const a = 1;' }
       ]
     };
 
@@ -59,7 +59,7 @@ describe('parseComments', () => {
         { line: 1, content: '// Single line comment' },
         { line: 2, content: 'const a = 1;' },
         { line: 3, content: '/* Multi-line' },
-        { line: 4, content: 'comment */' },
+        { line: 4, content: 'comment */' }
       ]
     };
 
@@ -86,7 +86,7 @@ describe('parseComments', () => {
       filename: 'testFile.ts',
       lines: [
         { line: 1, content: 'const a = 1;' },
-        { line: 2, content: 'const b = 2;' },
+        { line: 2, content: 'const b = 2;' }
       ]
     };
 
@@ -101,7 +101,7 @@ describe('parseComments', () => {
       lines: [
         { line: 1, content: 'const a = 1; // Inline comment' },
         { line: 2, content: '/* Multi-line comment' },
-        { line: 3, content: 'with code */ const b = 2;' },
+        { line: 3, content: 'with code */ const b = 2;' }
       ]
     };
 

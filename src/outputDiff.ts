@@ -6,7 +6,9 @@ export async function outputDiff(
   path: string[],
   commit: string
 ): Promise<string> {
-  await execAsync(`git fetch origin ${commit}`)
-  const { stdout } = await execAsync(`git diff ${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`);
+  await execAsync(`git fetch origin ${commit}`);
+  const { stdout } = await execAsync(
+    `git diff ${commit} -U0 --diff-filter=AM -- ${path.map(s => `'${s}'`).join(' ')}`
+  );
   return stdout;
 }

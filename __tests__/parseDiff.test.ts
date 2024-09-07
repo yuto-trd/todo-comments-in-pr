@@ -13,9 +13,7 @@ index 83db48f..bf269f4 100644
     const expected: DiffChunk[] = [
       {
         filename: 'file1.txt',
-        lines: [
-          { line: 1, content: 'Added line' }
-        ]
+        lines: [{ line: 1, content: 'Added line' }]
       }
     ];
     expect(parseDiff(diff)).toEqual(expected);
@@ -39,15 +37,11 @@ index 83db48f..bf269f4 100644
     const expected: DiffChunk[] = [
       {
         filename: 'file1.txt',
-        lines: [
-          { line: 1, content: 'Added line in file1' }
-        ]
+        lines: [{ line: 1, content: 'Added line in file1' }]
       },
       {
         filename: 'file2.txt',
-        lines: [
-          { line: 1, content: 'Added line in file2' }
-        ]
+        lines: [{ line: 1, content: 'Added line in file2' }]
       }
     ];
     expect(parseDiff(diff)).toEqual(expected);
@@ -101,15 +95,11 @@ index 83db48f..bf269f4 100644
     const expected: DiffChunk[] = [
       {
         filename: 'file1.txt',
-        lines: [
-          { line: 1, content: 'Added line 1' }
-        ]
+        lines: [{ line: 1, content: 'Added line 1' }]
       },
       {
         filename: 'file1.txt',
-        lines: [
-          { line: 3, content: 'Added line 3' }
-        ]
+        lines: [{ line: 3, content: 'Added line 3' }]
       }
     ];
     expect(parseDiff(diff)).toEqual(expected);

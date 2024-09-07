@@ -1,11 +1,11 @@
-import { DiffChunk } from "./parseDiff";
+import type { DiffChunk } from './parseDiff';
 
 export type CommentChunk = {
   startLine: number;
   endLine: number;
   content: string;
   fileName: string;
-}
+};
 
 export type RegExOptions = {
   singleLine?: RegExp;
@@ -13,18 +13,20 @@ export type RegExOptions = {
     start: RegExp;
     end: RegExp;
   };
-}
+};
 
-export function parseComments(chunk: DiffChunk, options?: RegExOptions): CommentChunk[] {
-  options = options || {
-    singleLine: /\/\/.*/g,
-    multiLine: {
-      start: /\/\*/g,
-      end: /\*\//g
-    }
-  };
-  if (options.multiLine) {
-    if (!options.multiLine.start || !options.multiLine.end) {
+export function parseComments(
+  chunk: DiffChunk,
+  options?: RegExOptions
+): CommentChunk[] {
+  const singleLineCommentRegEx = options ? options.singleLine : /\/\/.*/g;
+  const multiLineCommentStartRegEx = options
+    ? options.multiLine?.start
+    : /\/\*/g;
+  const multiLineCommentEndRegEx = options ? options.multiLine?.end : /\*\//g;
+
+  if (options?.multiLine) {
+    if (!options?.multiLine?.start || !options?.multiLine?.end) {
       throw new Error('multiLine.start and multiLine.end are required');
     }
   }
@@ -35,7 +37,7 @@ export function parseComments(chunk: DiffChunk, options?: RegExOptions): Comment
   let multiLineComment = false;
   let singleLineComment = false;
 
-  function reset() {
+  function reset(): void {
     commentStartLine = 0;
     commentEndLine = 0;
     content = [];
@@ -43,11 +45,13 @@ export function parseComments(chunk: DiffChunk, options?: RegExOptions): Comment
     singleLineComment = false;
   }
 
-  function pushComment() {
-    if (commentStartLine > commentEndLine || (commentStartLine === 0 && commentEndLine === 0))
+  function pushComment(): void {
+    if (
+      commentStartLine > commentEndLine ||
+      (commentStartLine === 0 && commentEndLine === 0)
+    )
       return;
-    if (content.length === 0)
-      return;
+    if (content.length === 0) return;
 
     comments.push({
       startLine: commentStartLine,
@@ -58,9 +62,9 @@ export function parseComments(chunk: DiffChunk, options?: RegExOptions): Comment
     reset();
   }
 
-  chunk.lines.forEach((line) => {
+  for (const line of chunk.lines) {
     const lineContent = line.content;
-    if (options.multiLine?.start.test(lineContent)) {
+    if (multiLineCommentStartRegEx?.test(lineContent)) {
       if (singleLineComment) {
         pushComment();
       }
@@ -74,14 +78,14 @@ export function parseComments(chunk: DiffChunk, options?: RegExOptions): Comment
       commentEndLine = line.line;
     }
 
-    if (options.multiLine?.end.test(lineContent)) {
+    if (multiLineCommentEndRegEx?.test(lineContent)) {
       multiLineComment = false;
       pushComment();
-      return;
+      continue;
     }
 
     if (!multiLineComment) {
-      if (options.singleLine?.test(lineContent)) {
+      if (singleLineCommentRegEx?.test(lineContent)) {
         content.push(lineContent);
         if (singleLineComment) {
           commentEndLine = line.line;
@@ -94,7 +98,7 @@ export function parseComments(chunk: DiffChunk, options?: RegExOptions): Comment
         pushComment();
       }
     }
-  });
+  }
 
   pushComment();
 
