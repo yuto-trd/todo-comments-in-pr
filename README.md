@@ -58,7 +58,7 @@ jobs:
 
 **Optional** The path to the file to search for TODOs. Need to specify a Json
 array.  
-(default: `"['*.cs','*.js','*.jsx','*.ts','*.tsx','*.css','*.scss','*.sass']"`)
+(default: `["*.cs","*.js","*.jsx","*.ts","*.tsx","*.css","*.scss","*.sass"]`)
 
 ### `commit`
 
