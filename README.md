@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: indigo-san/todo-comments-in-pr@v1
+      - uses: indigo-san/todo-comments-in-pr@vx.y.z
         id: todos
 
       - name: Generate a summary of the tasks
