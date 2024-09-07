@@ -1,4 +1,4 @@
-import { CommentChunk } from './parseComments';
+import type { CommentChunk } from './parseComments';
 
 export type TodoComment = {
   startLine: number;

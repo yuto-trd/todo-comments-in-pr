@@ -43,8 +43,7 @@ export async function run(): Promise<void> {
     core.debug(`Diff chunks: ${diffChunks}`);
 
     const commentChunks = diffChunks
-      .map(chunk => parseComments(chunk, regexpOptions))
-      .flat();
+      .flatMap(chunk => parseComments(chunk, regexpOptions));
     core.debug(`Comment chunks: ${commentChunks}`);
 
     const tasks = extractTasks(regexp, commentChunks);
