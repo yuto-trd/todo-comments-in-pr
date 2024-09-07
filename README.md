@@ -34,7 +34,7 @@ jobs:
           result-encoding: string
           script: |
             const tasks = JSON.parse(String.raw`${{ steps.todos.outputs.tasks }}`);
-            let body = tasks.map(task => `https://github.com/${{ github.repository }}/blob/${{ github.sha }}/${item.fileName}#L${item.startLine}-L${item.endLine}`).join('\n');
+            let body = tasks.map(task => `https://github.com/${{ github.repository }}/blob/${{ github.sha }}/${task.fileName}#L${task.startLine}-L${task.endLine}`).join('\n');
 
             if (tasks.length > 0) {
               body = `The following TODO comments were found:\n\n${body}`;
