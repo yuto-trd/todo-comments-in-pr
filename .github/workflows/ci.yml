@@ -45,6 +45,7 @@ jobs:
         run: npm run ci-test
 
   test-action:
+    if: github.event_name == 'pull_request'
     name: GitHub Actions Test
     runs-on: ubuntu-latest
 
