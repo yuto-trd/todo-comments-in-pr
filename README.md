@@ -33,7 +33,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const tasks = JSON.parse('${{ steps.todos.outputs.tasks }}');
+            const tasks = JSON.parse(`${{ steps.todos.outputs.tasks }}`);
             let body = tasks.map(task => `https://github.com/${{ github.repository }}/blob/${{ github.sha }}/${item.fileName}#L${item.startLine}-L${item.endLine}`).join('\n');
 
             if (tasks.length > 0) {
