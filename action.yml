@@ -1,6 +1,6 @@
 name: 'Find TODOs in pull requests'
 description: 'A GitHub Action to find TODOs in pull requests.'
-author: 'indigo-san'
+author: 'yuto-trd'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:

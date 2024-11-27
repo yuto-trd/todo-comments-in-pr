@@ -2,15 +2,15 @@
   "name": "todo-comments-in-pr",
   "description": "Parse TODO comments in PRs",
   "version": "1.0.0",
-  "author": "indigo-san",
+  "author": "yuto-trd",
   "private": true,
-  "homepage": "https://github.com/indigo-san/todo-comments-in-pr",
+  "homepage": "https://github.com/yuto-trd/todo-comments-in-pr",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/indigo-san/todo-comments-in-pr.git"
+    "url": "git+https://github.com/yuto-trd/todo-comments-in-pr.git"
   },
   "bugs": {
-    "url": "https://github.com/indigo-san/todo-comments-in-pr/issues"
+    "url": "https://github.com/yuto-trd/todo-comments-in-pr/issues"
   },
   "keywords": [
     "actions",

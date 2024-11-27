@@ -1,9 +1,9 @@
 # Find TODOs in pull requests
 
-[![GitHub Super-Linter](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
-![CI](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/ci.yml/badge.svg)
-[![Check dist/](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/check-dist.yml/badge.svg)](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/check-dist.yml)
-[![CodeQL](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/indigo-san/todo-comments-in-pr/actions/workflows/codeql-analysis.yml)
+[![GitHub Super-Linter](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
+![CI](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/ci.yml/badge.svg)
+[![Check dist/](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/check-dist.yml/badge.svg)](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/check-dist.yml)
+[![CodeQL](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/yuto-trd/todo-comments-in-pr/actions/workflows/codeql-analysis.yml)
 [![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
 
 Find the TODO comment in the pull request diff.
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: indigo-san/todo-comments-in-pr@vx.y.z
+      - uses: yuto-trd/todo-comments-in-pr@vx.y.z
         id: todos
 
       - name: Generate a summary of the tasks
